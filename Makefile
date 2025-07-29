@@ -1,6 +1,6 @@
 
 DOCKER=docker
-IMGTAG=alzeakis/tablesage:v0.0
+IMGTAG=img.stelar.gr/stelar/tablesage:latest
 IMGPATH=.
 DOCKERFILE=$(IMGPATH)/Dockerfile
 

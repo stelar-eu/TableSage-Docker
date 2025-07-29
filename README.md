@@ -4,8 +4,44 @@ TableSage is a profiling tool for tabular data leveraging the powerful capabilit
 
 # Instructions
 
+
+
 ## Input
-TableSage can be executed from the KLMS with the following input json:
+To run TableSage, via STELAR KLMS API the following input JSON structure is expected:
+
+```json
+{
+  "process_id": "<PROCESS_ID>",
+  "inputs": {
+    "data": [
+        "<RESOURCE_UUID>"
+    ]
+  },
+  "outputs": {
+    "profile": {
+        "url":"s3://<BUCKET_NAME>/temp/profile.json",
+        "resource": {
+            "name": "TableSage Profile of <RESOURCE_UUID>",
+            "relation": "llm_profile",
+            "format": "json"
+        }
+    }
+  },
+  "datasets":{
+    "d0": "<DATASET_UUID>" 
+  },
+  "parameters": {
+        "model": "llama3-8b-8192"
+  },
+  "secrets": {
+      "endpoint": "Endpoint/of/LLM",
+      "token": "Token/for/Endpoint"
+  }
+}
+```
+
+
+TableSage expects from the KLMS with the following input json:
 
 ```json
 {
@@ -16,13 +52,13 @@ TableSage can be executed from the KLMS with the following input json:
 	},
 	"output": {
 		"profile": "/path/to/write/the/file"
-    },
+  },
 	"parameters": {
         "model": "llama3-8b-8192"
-    },
-    "secrets": {
-        "endpoint": "Endpoint/of/LLM"
-		"token": "Token/for/Endpoint"
+  },
+  "secrets": {
+      "endpoint": "Endpoint/of/LLM",
+      "token": "Token/for/Endpoint"
 	}
 }
 ```
@@ -61,7 +97,7 @@ The output of TableSage has the following format:
     "message": "Profiler executed successfully!",
 	"output": {
 		"profile": "path_of_profile_file",
-    }
+    },
 	"metrics": {	
         "time": 1.698,
     },

@@ -1,8 +1,8 @@
-import json
+import json as js
 import sys
 import traceback
-import utils.minio_client as mc
 from tablesage import TableSage
+from utils.mclient import MinioClient
 from time import time
 
 def run(json):
@@ -14,13 +14,13 @@ def run(json):
         minio_skey = json['minio'].get('skey', None)
         minio_endpoint = json['minio']['endpoint_url']
         #Init MinIO Client with acquired credentials from tool execution metadata
-        mclient = mc.init_client(minio_endpoint, minio_id, minio_key, minio_skey)
+        mc = MinioClient(minio_endpoint, minio_id, minio_key, secure=True, session_token=minio_skey)
         ###############################################################################
 
         ##### Tool Logic #####
         # First script parameters
         
-        log = mc.get_object(json["inputs"]['data'][0], 'file.csv')
+        log = mc.get_object(s3_path=json["input"]['data'][0], local_path='file.csv')
         if 'error' in log:
             raise ValueError(log['error'])
         
@@ -59,17 +59,17 @@ def run(json):
         t = time() - t
         
         with open('profile.json', 'w') as f:
-            f.write(json.dumps(profile, indent=4)+"\n")
+            f.write(js.dumps(profile, indent=4)+"\n")
         
-        if 'profile' in json['outputs']:
-            mc.put_object(json['outputs']['profile'], 'profile.json')
-        
+        if 'profile' in json['output']:
+            mc.put_object(s3_path=json['output']['profile'], file_path='profile.json')
+
         #Evaluate Responses
         metrics = {'time': t }
 
         json= {
                 'message': 'Profiler Executed Succesfully',
-                'output': json['outputs'], 
+                'output': json['output'], 
                 'metrics': metrics,
                 'status': 200,
               }
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     if len(sys.argv) != 3:
         raise ValueError("Please provide 2 files.")
     with open(sys.argv[1]) as o:
-        j = json.load(o)
+        j = js.load(o)
     response = run(j)
     with open(sys.argv[2], 'w') as o:
-        o.write(json.dumps(response, indent=4))
+        o.write(js.dumps(response, indent=4))
